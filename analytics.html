@@ -601,6 +601,10 @@ tbody tr:last-child td { border-bottom: none; }
   <h2>How CTAs Convert Across the Site</h2>
   <p class="sub">Analysis of high-intent pages, conversion performance, and CTA effectiveness. When users reach conversion pages, they convert well — the challenge is getting them there.</p>
   
+  <div style="background:rgba(5,201,218,0.08);border:1px solid rgba(5,201,218,0.25);border-radius:8px;padding:14px;margin-bottom:18px;font-size:12px;color:var(--t2);">
+    <strong>Note on "Key Events":</strong> GA4's broad conversion metric that includes form submissions (completed requests), form starts (began filling but didn't submit), and other tracked interactions. The /request-a-demo/ page had <strong>891 key events from 3,865 views = 23%</strong>. Actual completed demo requests sitewide: 122 over 90 days.
+  </div>
+  
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -618,9 +622,9 @@ tbody tr:last-child td { border-bottom: none; }
           <td><strong>/request-a-demo/</strong></td>
           <td>3,865</td>
           <td>17.6s</td>
-          <td>891</td>
+          <td>891<br><span style="font-size:10px;color:var(--t3);">(form fills + starts)</span></td>
           <td><span class="badge" style="background:#D1FAE5;color:#059669">23.0%</span></td>
-          <td>Exceptional conversion when reached. <strong>Discovery is the bottleneck, not the page.</strong></td>
+          <td>Exceptional conversion when reached. Key events = completed + started forms. <strong>Discovery is the bottleneck, not the page.</strong></td>
         </tr>
         <tr class="row-hi">
           <td><strong>/get-resources/oreilly-report</strong></td>
