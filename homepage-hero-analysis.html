@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monte Carlo Homepage Hero Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:   #060E1B;
+  --navy:  #0D1E35;
+  --teal:  #05C9DA;
+  --sur:   #FFFFFF;
+  --off:   #F3F7FA;
+  --bdr:   #DCE8EE;
+  --t1:    #0B1929;
+  --t2:    #38424F;
+  --t3:    #6B7685;
+  --red:   #E53E3E;
+  --amb:   #F59E0B;
+  --grn:   #10B981;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--off); color: var(--t2); font-size: 14px; line-height: 1.6; padding: 40px 20px; }
+.container { max-width: 900px; margin: 0 auto; }
+.header { background: linear-gradient(140deg, #040C17 0%, #081828 55%, #0C2B42 100%); color: white; padding: 48px 40px; border-radius: 12px; margin-bottom: 32px; }
+.header h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+.header p { color: rgba(255,255,255,0.7); font-size: 15px; line-height: 1.7; }
+.section { background: white; border: 1px solid var(--bdr); border-radius: 12px; padding: 32px; margin-bottom: 24px; }
+.section h2 { font-size: 20px; font-weight: 700; color: var(--t1); margin-bottom: 16px; }
+.section h3 { font-size: 16px; font-weight: 700; color: var(--t1); margin: 24px 0 12px; }
+.metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 20px 0; }
+.metric { background: var(--off); border: 1px solid var(--bdr); border-radius: 8px; padding: 20px; }
+.metric-val { font-size: 28px; font-weight: 800; color: var(--t1); line-height: 1; }
+.metric-label { font-size: 11px; color: var(--t3); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.callout { border-left: 4px solid var(--amb); background: rgba(245,158,11,0.08); padding: 20px; border-radius: 6px; margin: 20px 0; }
+.callout-red { border-left-color: var(--red); background: rgba(229,62,62,0.08); }
+.callout-grn { border-left-color: var(--grn); background: rgba(16,185,129,0.08); }
+.callout h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+.callout p { font-size: 13px; line-height: 1.8; }
+ul { margin-left: 20px; line-height: 1.9; }
+li { margin-bottom: 8px; }
+strong { color: var(--t1); }
+.missing { background: rgba(229,62,62,0.1); border: 1px solid rgba(229,62,62,0.3); border-radius: 8px; padding: 18px; margin: 20px 0; }
+.missing h4 { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 10px; }
+.missing ul { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Homepage Hero Analysis</h1>
+    <p>Above-the-fold performance analysis for Monte Carlo Data homepage · 90-day window (Dec 20, 2025 – Mar 19, 2026)</p>
+  </div>
+
+  <div class="section">
+    <h2>📊 What We Know (Overall Homepage)</h2>
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-val">39,454</div>
+        <div class="metric-label">Page Views (90d)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">13.6s</div>
+        <div class="metric-label">Avg Engagement Time</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">263</div>
+        <div class="metric-label">Key Events</div>
+      </div>
+    </div>
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-val">0.67%</div>
+        <div class="metric-label">Conversion Rate</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">~182K</div>
+        <div class="metric-label">Total Site Sessions</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">21.7%</div>
+        <div class="metric-label">Homepage % of Traffic</div>
+      </div>
+    </div>
+
+    <div class="callout callout-red">
+      <h4>⚠️ The Problem</h4>
+      <p><strong>Homepage has highest traffic but lowest engagement.</strong> Visitors "orient and click through quickly" — it functions as a navigation hub, not a conversion driver. The 0.67% key event rate is the metric that matters, and it's poor.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🎯 Above-the-Fold CTAs (What the Data Says)</h2>
+    
+    <h3>Primary CTA: "Request a Demo"</h3>
+    <div class="callout callout-red">
+      <h4>🔴 High-Commitment Barrier</h4>
+      <p><strong>The paradox:</strong> "Request a Demo" is the primary CTA on the homepage hero, yet only <strong>3,865 people reached the demo page</strong> in 90 days (9.8% of homepage traffic).</p>
+      <p style="margin-top:10px;">When people DO reach the demo page, it converts at 23% — exceptional. But most homepage visitors never click through. Why? "Demo" implies a sales call. Too high-commitment for early-stage visitors.</p>
+    </div>
+
+    <h3>Secondary CTA: "Take a Tour"</h3>
+    <div class="callout">
+      <h4>⚠️ Buried as Secondary</h4>
+      <p><strong>Current positioning: Secondary/fallback CTA.</strong> But this is the closest thing to a free trial Monte Carlo offers. In a demo-gated model, the self-guided tour should be co-primary, not secondary.</p>
+      <p style="margin-top:10px;">Competitors (Datadog, Hex) lead with "Free Trial" — structural advantage. Monte Carlo's tour is the right instinct but needs equal prominence.</p>
+    </div>
+
+    <h3>Video Play (if present in hero)</h3>
+    <div class="missing">
+      <h4>❌ Data Not Available</h4>
+      <ul>
+        <li>No video play event tracking in the analytics document</li>
+        <li>If video exists in hero, play count would need to be pulled from GA4 events</li>
+        <li>Typical B2B homepage video engagement: 15-25% of visitors click play</li>
+        <li>Average watch time: 30-60 seconds (most don't finish)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>❌ Critical Missing Data</h2>
+    <p style="margin-bottom:16px;">To properly analyze homepage hero performance, we need granular GA4 event tracking:</p>
+
+    <div class="missing">
+      <h4>Missing CTA Click Data:</h4>
+      <ul>
+        <li><strong>Primary CTA click rate:</strong> How many of 39,454 homepage visitors clicked "Request a Demo"?</li>
+        <li><strong>Secondary CTA click rate:</strong> How many clicked "Take a Tour"?</li>
+        <li><strong>Click-through vs page reach:</strong> Did clicks go to /request-a-demo/ or elsewhere?</li>
+        <li><strong>Button position testing:</strong> Hero vs sticky nav vs footer — which converts better?</li>
+      </ul>
+    </div>
+
+    <div class="missing">
+      <h4>Missing Video Data (if applicable):</h4>
+      <ul>
+        <li>Video play count (% of visitors who clicked play)</li>
+        <li>Average watch time</li>
+        <li>Video completion rate (% who watched to end)</li>
+        <li>Correlation: Do video viewers convert better?</li>
+      </ul>
+    </div>
+
+    <div class="missing">
+      <h4>Missing Hero Engagement:</h4>
+      <ul>
+        <li>Scroll depth: % who scroll past hero</li>
+        <li>Time in viewport: Avg seconds spent in hero section</li>
+        <li>Headline interaction: Did they read or bounce immediately?</li>
+        <li>Hero → Demo path: Direct clicks vs navigation browsing</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>🔍 What We Can Infer</h2>
+
+    <div class="callout callout-grn">
+      <h4>✓ Homepage Traffic is Strong</h4>
+      <p>39,454 views (21.7% of all site traffic) — homepage is being found. SEO, paid search, and referrals are working. The issue is not discovery of the homepage.</p>
+    </div>
+
+    <div class="callout callout-red">
+      <h4>🔴 Engagement is Weak</h4>
+      <p><strong>13.6 seconds average time</strong> suggests visitors are scanning, not reading. They're orienting ("What does this company do?") and then clicking away — likely to product pages or blog. The hero is not compelling them to convert on the spot.</p>
+    </div>
+
+    <div class="callout callout-red">
+      <h4>🔴 Conversion is Poor</h4>
+      <p><strong>0.67% key event rate</strong> (263 events from 39,454 views) is low. For context:</p>
+      <ul style="margin-top:10px;">
+        <li>Demo page converts at 23% when reached</li>
+        <li>O'Reilly Report converts at 68% when reached</li>
+        <li>Blog readers engage for 40-76 seconds</li>
+      </ul>
+      <p style="margin-top:10px;">The homepage is the weak link. When visitors get deeper into the site, they convert. The hero is failing to move them forward.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>💡 Recommended Analysis Next Steps</h2>
+    
+    <h3>1. Pull GA4 Event Data (Immediate)</h3>
+    <ul>
+      <li>Event: <code>click</code> where <code>element = "Request a Demo"</code> and <code>page_location = homepage</code></li>
+      <li>Event: <code>click</code> where <code>element = "Take a Tour"</code></li>
+      <li>Event: <code>video_start</code>, <code>video_progress</code>, <code>video_complete</code> (if video exists)</li>
+      <li>Metric: <code>scroll_depth</code> at 25%, 50%, 75%, 100%</li>
+    </ul>
+
+    <h3>2. Set Up Custom Hero Tracking</h3>
+    <ul>
+      <li>Fire custom GA4 event: <code>hero_cta_click</code> with parameters <code>button_text</code>, <code>button_position</code></li>
+      <li>Track hero visibility: Fire event when hero enters viewport</li>
+      <li>Track CTA visibility: Fire event when CTA buttons enter viewport</li>
+    </ul>
+
+    <h3>3. A/B Test Hypothesis</h3>
+    <div class="callout">
+      <h4>Test: Swap Primary/Secondary CTAs</h4>
+      <p><strong>Control:</strong> "Request a Demo" primary, "Take a Tour" secondary</p>
+      <p><strong>Variant:</strong> "Take a Tour" primary, "Request a Demo" secondary</p>
+      <p style="margin-top:10px;"><strong>Hypothesis:</strong> Lower-commitment CTA will increase click-through rate. More visitors will engage with tour → qualify themselves → convert to demo at higher quality.</p>
+    </div>
+
+    <h3>4. Video-Specific (if applicable)</h3>
+    <ul>
+      <li>Test: Video vs static image hero</li>
+      <li>Test: Autoplay (muted) vs click-to-play</li>
+      <li>Track: Video viewers → Demo conversion rate</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>📋 Summary: Homepage Hero is Underperforming</h2>
+    
+    <div class="callout callout-red">
+      <h4>The Diagnosis</h4>
+      <p><strong>Highest traffic, lowest engagement, poor conversion.</strong></p>
+      <p style="margin-top:12px;"><strong>The hero is functioning as a navigation checkpoint</strong> — visitors scan the headline, realize what the company does, and then click to product pages or blog to learn more. They're not converting in the hero because the CTAs are too high-commitment ("Request a Demo") or too buried ("Take a Tour").</p>
+    </div>
+
+    <div class="callout callout-grn">
+      <h4>The Fix (Based on Available Data)</h4>
+      <ul>
+        <li><strong>Elevate "Take a Tour" to co-primary CTA</strong> — Equal visual weight with "Request a Demo"</li>
+        <li><strong>Test softer CTA copy:</strong> "See How It Works" → Tour (not "Request a Demo")</li>
+        <li><strong>Add O'Reilly Report to hero:</strong> 68% conversion rate, gated asset = middle ground</li>
+        <li><strong>Multi-path approach:</strong> Give visitors 3 options at different commitment levels (Tour / Resource / Demo)</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <h4>⚠️ But First: Get the Granular Data</h4>
+      <p>Without CTA-level click tracking and video engagement data, we're making informed guesses. Pull GA4 event data or set up custom tracking before making major hero changes. Test hypotheses with data, not assumptions.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
