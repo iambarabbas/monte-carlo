@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monte Carlo Data — Website Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --ink:   #060E1B;
+  --navy:  #0D1E35;
+  --mid:   #152840;
+  --teal:  #05C9DA;
+  --teal2: #0099AB;
+  --glow:  rgba(5,201,218,0.11);
+  --sur:   #FFFFFF;
+  --off:   #F3F7FA;
+  --bdr:   #DCE8EE;
+  --db:    rgba(255,255,255,0.08);
+  --t1:    #0B1929;
+  --t2:    #38424F;
+  --t3:    #6B7685;
+  --grn:   #10B981;
+  --amb:   #F59E0B;
+  --red:   #E53E3E;
+  --pur:   #7C3AED;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--off); color: var(--t2); font-size: 14px; line-height: 1.6; }
+
+/* ─── NAV ─── */
+.sidenav { position: fixed; top: 0; left: 0; width: 228px; height: 100vh; background: var(--ink); overflow-y: auto; z-index: 100; display: flex; flex-direction: column; }
+.nav-brand { padding: 22px 20px 18px; border-bottom: 1px solid var(--db); display: flex; align-items: center; gap: 10px; }
+.brand-mark { width: 32px; height: 32px; background: linear-gradient(135deg, var(--teal), #038A98); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.brand-text .b1 { font-size: 13px; font-weight: 700; color: white; letter-spacing: -0.2px; }
+.brand-text .b2 { font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 2px; }
+.nav-group { padding: 16px 0 4px; }
+.nav-gl { font-size: 9px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.22); padding: 0 20px 6px; }
+.sidenav a { display: flex; align-items: center; gap: 9px; color: rgba(255,255,255,0.48); text-decoration: none; font-size: 12px; font-weight: 500; padding: 8px 20px; border-left: 2px solid transparent; transition: all 0.15s; }
+.sidenav a svg { flex-shrink: 0; stroke: currentColor; }
+.sidenav a:hover, .sidenav a.active { color: white; background: rgba(255,255,255,0.05); border-left-color: var(--teal); }
+.sidenav a.active svg { stroke: var(--teal); }
+
+/* ─── MAIN ─── */
+.main { margin-left: 228px; }
+
+/* ─── HERO ─── */
+.hero { background: linear-gradient(140deg, #040C17 0%, #081828 55%, #0C2B42 100%); color: white; padding: 64px 60px 52px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; top: -180px; right: -120px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(5,201,218,0.07) 0%, transparent 65%); pointer-events: none; }
+.hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(5,201,218,0.12); border: 1px solid rgba(5,201,218,0.25); color: var(--teal); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 26px; }
+.hero h1 { font-size: 38px; font-weight: 800; line-height: 1.12; letter-spacing: -0.8px; margin-bottom: 14px; }
+.hero h1 em { color: var(--teal); font-style: normal; }
+.hero-lead { color: rgba(255,255,255,0.52); font-size: 14px; max-width: 560px; line-height: 1.75; }
+.hero-kpi { display: flex; gap: 0; margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--db); }
+.hk { flex: 1; padding-right: 36px; border-right: 1px solid var(--db); margin-right: 36px; }
+.hk:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.hk-val { font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.5px; line-height: 1; }
+.hk-val em { color: var(--teal); font-style: normal; }
+.hk-label { font-size: 11px; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+/* ─── SECTIONS ─── */
+.section { padding: 52px 60px; border-bottom: 1px solid var(--bdr); background: var(--sur); }
+.section.alt { background: var(--off); }
+.sec-label { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal2); margin-bottom: 8px; }
+.section h2 { font-size: 24px; font-weight: 800; color: var(--t1); letter-spacing: -0.3px; margin-bottom: 6px; }
+.section .sub { color: var(--t3); font-size: 13px; margin-bottom: 32px; max-width: 680px; line-height: 1.7; }
+
+/* ─── STAT CARDS ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+.sc { background: white; border: 1px solid var(--bdr); border-radius: 10px; padding: 22px; position: relative; overflow: hidden; }
+.sc::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--teal); border-radius: 10px 10px 0 0; }
+.sc .v { font-size: 30px; font-weight: 800; color: var(--t1); line-height: 1; letter-spacing: -1px; }
+.sc .l { font-size: 11px; font-weight: 500; color: var(--t3); margin-top: 7px; text-transform: uppercase; letter-spacing: 0.5px; }
+.sc .s { font-size: 12px; color: var(--teal2); margin-top: 4px; font-weight: 500; }
+
+/* ─── CHART PAIR ─── */
+.chart-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+.chart-box { background: white; border: 1px solid var(--bdr); border-radius: 10px; padding: 22px 24px; }
+.chart-box h4 { font-size: 13px; font-weight: 700; color: var(--t1); }
+.chart-box p  { font-size: 11px; color: var(--t3); margin-top: 3px; margin-bottom: 14px; }
+.chart-box canvas { max-height: 210px; }
+
+/* ─── TABLES ─── */
+.tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--bdr); margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--navy); color: white; }
+thead th { padding: 12px 16px; text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+tbody tr:nth-child(even) { background: var(--off); }
+tbody tr:hover { background: rgba(5,201,218,0.04); }
+tbody td { padding: 11px 16px; border-bottom: 1px solid var(--bdr); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+.row-hi td { background: rgba(5,201,218,0.07) !important; font-weight: 600; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.b-yes { background: #D1FAE5; color: #059669; }
+.b-no  { background: #F3F4F6; color: #9CA3AF; }
+.b-mc  { background: rgba(5,201,218,0.1); color: var(--teal2); }
+
+/* ─── CALLOUTS ─── */
+.callout { border-radius: 8px; padding: 16px 20px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
+.c-icon { flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.c-body { font-size: 13px; line-height: 1.65; }
+.c-body strong { display: block; margin-bottom: 4px; font-size: 14px; font-weight: 700; color: var(--t1); }
+.callout.tl { background: rgba(5,201,218,0.07); border-left: 3px solid var(--teal); }
+.callout.tl .c-icon { background: rgba(5,201,218,0.18); }
+.callout.gn { background: #F0FDF4; border-left: 3px solid var(--grn); }
+.callout.gn .c-icon { background: #D1FAE5; }
+.callout.am { background: #FFFBEB; border-left: 3px solid var(--amb); }
+.callout.am .c-icon { background: #FEF3C7; }
+.callout.rd { background: #FFF5F5; border-left: 3px solid var(--red); }
+.callout.rd .c-icon { background: #FEE2E2; }
+
+/* ─── Q-BLOCKS ─── */
+.qb { background: white; border: 1px solid var(--bdr); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+.qb-h { background: var(--navy); color: white; padding: 18px 26px; display: flex; align-items: center; gap: 16px; }
+.qb-n { background: var(--teal); color: var(--ink); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+.qb-h h3 { font-size: 15px; font-weight: 600; }
+.qb-body { padding: 28px; }
+.qb-ans { font-size: 13px; line-height: 1.75; color: var(--t2); margin-bottom: 20px; }
+
+/* ─── SIGNALS ─── */
+.sig-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 20px 0; }
+.sig { background: var(--off); border: 1px solid var(--bdr); border-radius: 8px; padding: 16px; }
+.sig .sn { font-size: 24px; font-weight: 800; color: var(--teal2); letter-spacing: -0.5px; line-height: 1; }
+.sig .sl { font-size: 10px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.sig .sd { font-size: 12px; color: var(--t2); margin-top: 8px; line-height: 1.55; }
+
+/* ─── AI TRAFFIC CARDS ─── */
+.ai-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 24px 0; }
+.aic { background: white; border: 1px solid var(--bdr); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+.aic::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+.aic.chatgpt::before { background: #10A37F; }
+.aic.gemini::before  { background: #4285F4; }
+.aic.perp::before    { background: #6B4FBB; }
+.aic.claud::before   { background: #CC785C; }
+.aic.copil::before   { background: #00A4EF; }
+.aic .an { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 14px; }
+.aic .as { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.aic .asv { font-size: 18px; font-weight: 800; color: var(--t1); }
+.aic .asl { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.3px; }
+.aic .ar { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--bdr); }
+.aic .arv { font-size: 20px; font-weight: 800; color: var(--grn); }
+.aic .arl { font-size: 11px; color: var(--t3); }
+.aic.total-card { background: var(--navy); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 6px; }
+.aic.total-card .tv { font-size: 36px; font-weight: 800; color: white; letter-spacing: -1px; line-height: 1; }
+.aic.total-card .tl { font-size: 12px; color: rgba(255,255,255,0.4); }
+.aic.total-card .ti { font-size: 13px; color: var(--teal); font-weight: 600; line-height: 1.5; }
+
+/* ─── FOUNDATION ─── */
+.fnd { background: var(--navy); border-radius: 10px; padding: 32px; margin-bottom: 28px; }
+.fnd h3 { font-size: 17px; font-weight: 800; color: white; margin-bottom: 4px; }
+.fnd .fs { font-size: 12px; color: rgba(255,255,255,0.42); margin-bottom: 24px; }
+.fnd-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.fi { background: rgba(255,255,255,0.04); border: 1px solid var(--db); border-radius: 8px; padding: 20px; }
+.fi .fii { width: 36px; height: 36px; background: rgba(5,201,218,0.14); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.fi .fit { font-size: 13px; font-weight: 700; color: white; margin-bottom: 6px; }
+.fi .fid { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* ─── ROADMAP ─── */
+.rm { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+.ph { border-radius: 10px; overflow: hidden; border: 1px solid var(--bdr); }
+.ph-h { padding: 22px 24px; }
+.ph-h.p1 { background: linear-gradient(135deg, #B91C1C, var(--red)); }
+.ph-h.p2 { background: linear-gradient(135deg, var(--teal2), var(--teal)); }
+.ph-h.p3 { background: linear-gradient(135deg, var(--navy), var(--mid)); }
+.ph-h .phl { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+.ph-h h3 { font-size: 17px; font-weight: 800; color: white; }
+.ph-body { background: white; padding: 20px; }
+.act { padding: 14px 0; border-bottom: 1px solid var(--bdr); }
+.act:last-child { border-bottom: none; padding-bottom: 0; }
+.act .at { font-size: 13px; font-weight: 700; color: var(--t1); margin-bottom: 5px; }
+.act .ad { font-size: 12px; color: var(--t3); line-height: 1.55; }
+.a-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; margin-top: 8px; }
+.tag-h { background: #FEE2E2; color: #DC2626; }
+.tag-m { background: rgba(5,201,218,0.1); color: var(--teal2); }
+.tag-s { background: #EDE9FE; color: var(--pur); }
+
+/* ─── FOOTER ─── */
+.footer { background: var(--ink); color: rgba(255,255,255,0.28); text-align: center; padding: 24px; font-size: 11px; }
+.footer strong { color: rgba(255,255,255,0.6); }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(5,201,218,0.3); border-radius: 3px; }
+
+@media (max-width: 1100px) {
+  .sidenav { display: none; } .main { margin-left: 0; }
+  .hero, .section { padding: 32px 24px; }
+  .stat-grid, .sig-grid, .ai-grid, .rm, .fnd-grid, .chart-pair { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .stat-grid, .sig-grid, .ai-grid, .rm, .fnd-grid, .chart-pair { grid-template-columns: 1fr; }
+  .hero-kpi { flex-direction: column; gap: 16px; }
+  .hk { border-right: none; margin-right: 0; padding-right: 0; border-bottom: 1px solid var(--db); padding-bottom: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── SIDENAV ─── -->
+<nav class="sidenav">
+  <div class="nav-brand">
+    <div class="brand-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1.5L14 5v6L8 14.5 2 11V5L8 1.5Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M8 5.5L11 7.5v3.5L8 13 5 11V7.5L8 5.5Z" fill="white" fill-opacity="0.35"/>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="b1">Monte Carlo</div>
+      <div class="b2">Website Analytics</div>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-gl">Overview</div>
+    <a href="#snapshot">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Traffic Snapshot
+    </a>
+    <a href="#insights">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Key Insights
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-gl">3 Questions</div>
+    <a href="#q1">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Interest Signals
+    </a>
+    <a href="#q2">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Instant Response
+    </a>
+    <a href="#q3">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Attribution
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-gl">Deep Dives</div>
+    <a href="#ai">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      AI Traffic
+    </a>
+    <a href="#pages">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Top Pages
+    </a>
+    <a href="#competitors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Competitors
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-gl">Roadmap</div>
+    <a href="#foundation">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Foundation
+    </a>
+    <a href="#roadmap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Priority Plan
+    </a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<div class="main">
+
+<!-- ─── HERO ─── -->
+<div class="hero" id="hero">
+  <div class="hero-tag">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Website Analytics Brief
+  </div>
+  <h1>Monte Carlo Data<br><em>Website Performance</em> Analysis</h1>
+  <p class="hero-lead">Traffic, conversion, AI acquisition, and a prioritised action plan — grounded in 90 days of GA4 data.</p>
+  <div class="hero-kpi">
+    <div class="hk"><div class="hk-val">182<em>K</em></div><div class="hk-label">Total Sessions</div></div>
+    <div class="hk"><div class="hk-val">133<em>K</em></div><div class="hk-label">Active Users</div></div>
+    <div class="hk"><div class="hk-val"><em>184</em></div><div class="hk-label">High-Intent Conversions</div></div>
+    <div class="hk"><div class="hk-val"><em>122</em></div><div class="hk-label">Direct Demo Requests</div></div>
+  </div>
+</div>
+
+<!-- ─── SNAPSHOT ─── -->
+<div class="section" id="snapshot">
+  <div class="sec-label">01 — Overview</div>
+  <h2>Traffic Snapshot</h2>
+  <p class="sub">All figures from GA4 standard reports across the 90-day window. Organic Search is the volume engine; Referral is the conversion engine.</p>
+
+  <div class="stat-grid">
+    <div class="sc"><div class="v">182K</div><div class="l">Total Sessions</div><div class="s">Organic-led growth</div></div>
+    <div class="sc"><div class="v">133K</div><div class="l">Active Users</div><div class="s">90-day window</div></div>
+    <div class="sc"><div class="v">184</div><div class="l">High-Intent Conversions</div><div class="s">Demo + Chat + Blog CTA</div></div>
+    <div class="sc"><div class="v">122</div><div class="l">Direct Demo Requests</div><div class="s">Primary conversion event</div></div>
+  </div>
+
+  <div class="chart-pair">
+    <div class="chart-box">
+      <h4>Sessions by Channel</h4>
+      <p>90-day traffic distribution across all acquisition sources</p>
+      <canvas id="channelChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h4>High-Intent Conversion Breakdown</h4>
+      <p>184 total conversions across three tracked mechanisms</p>
+      <canvas id="convBreakChart"></canvas>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Channel</th><th>Sessions</th><th>Active Users</th><th>Key Events</th>
+        <th>Session Key Event Rate</th><th>Demo Conversions</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Organic Search</td><td>89,813</td><td>63,206</td><td>3,063</td><td>0.57%</td><td>76 (41%)</td></tr>
+        <tr><td>Direct</td><td>28,681</td><td>22,646</td><td>2,772</td><td>1.54%</td><td>26 (14%)</td></tr>
+        <tr><td>Paid Search</td><td>18,388</td><td>13,076</td><td>2,721</td><td>1.97%</td><td>21 (11%)</td></tr>
+        <tr><td>Display</td><td>16,503</td><td>13,646</td><td>164</td><td>0.23%</td><td>2 (1%)</td></tr>
+        <tr class="row-hi"><td>Referral</td><td>12,205</td><td>6,671</td><td>2,608</td><td>3.12%</td><td>48 (26%)</td></tr>
+        <tr><td>Organic Social</td><td>4,934</td><td>3,523</td><td>543</td><td>1.09%</td><td>8 (4%)</td></tr>
+        <tr><td>Email</td><td>3,474</td><td>3,100</td><td>493</td><td>1.56%</td><td>3 (2%)</td></tr>
+        <tr><td>Paid Social</td><td>1,665</td><td>1,349</td><td>56</td><td>0.94%</td><td>0 (0%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:var(--t3);">Total high-intent conversions: <strong>184</strong> &nbsp;|&nbsp; Demo Requests: <strong>122</strong> &nbsp;|&nbsp; Meetings Booked in Chat: <strong>41</strong> &nbsp;|&nbsp; Blog Talk To Us: <strong>21</strong></p>
+</div>
+
+<!-- ─── KEY INSIGHTS ─── -->
+<div class="section alt" id="insights">
+  <div class="sec-label">02 — Key Insights</div>
+  <h2>What the Data Is Telling You</h2>
+  <p class="sub">Six findings that cut across all channels and directly inform the action plan.</p>
+
+  <div class="callout tl">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    </div>
+    <div class="c-body"><strong>When visitors reach high-intent pages, they convert well</strong>The /request-a-demo/ page converts at 23% — that's strong. The problem is discovery: only 3,865 people found it in 90 days across ~182,000 sessions. The bottleneck is architecture, not the page itself.</div>
+  </div>
+
+  <div class="callout gn">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div class="c-body"><strong>Referral is the most efficient channel — but needs validation</strong>3.12% session key event rate, 26% of all demo conversions. A portion of this traffic includes HubSpot-tracked links from existing customers and partner onboarding. The likely new-prospect drivers are partner ecosystems: Snowflake, Databricks, G2, and Gartner Peer Insights. If confirmed, this is the highest-leverage distribution play available.</div>
+  </div>
+
+  <div class="callout am">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </div>
+    <div class="c-body"><strong>Organic Search is the volume engine — not the conversion engine</strong>49% of all sessions, 0.57% key event rate. Blog readers are arriving on educational content (data pipelines, RAG, LLMs) and have no consistent path to a demo. The content is excellent. The conversion pathways are not.</div>
+  </div>
+
+  <div class="callout am">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="c-body"><strong>Display needs an audit before any budget decision</strong>16,503 sessions, 0.23% key event rate, 2 demo conversions. GA4 last-touch attribution doesn't capture view-through conversions — which matter in a 30–90 day enterprise sales cycle. Broad prospecting on GDN: reallocate. Account-based retargeting against an ICP list: keep and add view-through tracking. Don't cut without knowing which one you're running.</div>
+  </div>
+
+  <div class="callout rd">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E53E3E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><line x1="9" y1="10" x2="15" y2="14"/><line x1="15" y1="10" x2="9" y2="14"/></svg>
+    </div>
+    <div class="c-body"><strong>The chatbot is not a conversion driver</strong>104 email captures from 31 unique users over 90 days. 2 conversations started. A simple inline blog form (Talk To Us) generated 21 conversions with no chatbot. Direct demo requests generated 122 conversions without it. The three strongest competitors in the space — Datadog, Hex, and Torq — don't use chatbots.</div>
+  </div>
+
+  <div class="callout tl">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div class="c-body"><strong>AI-referred traffic is small but punches significantly above its weight</strong>4,285 sessions (2.1% of total) from ChatGPT, Perplexity, Gemini, Claude, and Copilot. Perplexity converts at 1.55% — equal to Direct traffic. Copilot at 3.08% — equal to Referral. These visitors arrive informed and intent-driven. The GEO opportunity is already working.</div>
+  </div>
+</div>
+
+<!-- ─── 3 QUESTIONS ─── -->
+<div class="section" id="q1">
+  <div class="sec-label">03 — The Three Questions</div>
+  <h2>Data-Backed Answers</h2>
+  <p class="sub">Each question answered directly from the GA4 signal data.</p>
+
+  <!-- Q1 -->
+  <div class="qb">
+    <div class="qb-h">
+      <div class="qb-n">1</div>
+      <h3>How do we know when someone is interested?</h3>
+    </div>
+    <div class="qb-body">
+      <p class="qb-ans">GA4 is already firing the right interest signals. The gap is that none of them are connected to any CRM trigger or SDR workflow. The infrastructure exists — the activation doesn't.</p>
+
+      <div class="sig-grid">
+        <div class="sig">
+          <div class="sn">1,738</div>
+          <div class="sl">high_intent events / 90 days</div>
+          <div class="sd">Custom GA4 event fired on high-value page interactions — pricing, demo, platform pages. Not connected to any outreach trigger.</div>
+        </div>
+        <div class="sig">
+          <div class="sn">~650</div>
+          <div class="sl">form_start without submit</div>
+          <div class="sd">Users who opened a form and began typing but didn't finish. Highest-intent pre-conversion signal on the site. No recovery sequence exists.</div>
+        </div>
+        <div class="sig">
+          <div class="sn">1,595</div>
+          <div class="sl">form_submit events</div>
+          <div class="sd">71% form completion rate — strong for enterprise B2B (industry benchmark: 20–40%). These route to HubSpot correctly.</div>
+        </div>
+        <div class="sig">
+          <div class="sn">3,865</div>
+          <div class="sl">/request-a-demo/ visits</div>
+          <div class="sd">23% of visitors who reach this page convert. No real-time SDR notification fires when a known account visits.</div>
+        </div>
+        <div class="sig">
+          <div class="sn">2,496</div>
+          <div class="sl">/request-for-pricing/ visits</div>
+          <div class="sd">Clear buyer intent — 62 key events from 2,496 views. No account-level routing in place.</div>
+        </div>
+        <div class="sig">
+          <div class="sn">40–76s</div>
+          <div class="sl">Avg blog engagement time</div>
+          <div class="sd">Technical blog readers spending 40–76 seconds are pre-qualified researchers — data engineers and CDOs in active consideration. No nurture segment built.</div>
+        </div>
+      </div>
+
+      <div class="callout tl" style="margin-top:20px;">
+        <div class="c-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+        <div class="c-body"><strong>Answer:</strong> You know someone is interested when they fire a high_intent event, start a form, or land on /request-a-demo/ or /request-for-pricing/. The signals are there. Wiring them to HubSpot SDR alerts is the missing step — and it requires no site changes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="qb" id="q2">
+    <div class="qb-h">
+      <div class="qb-n">2</div>
+      <h3>How do we respond to them instantly and correctly?</h3>
+    </div>
+    <div class="qb-body">
+      <p class="qb-ans">Right now, there's no automated, signal-driven instant response. The chatbot was designed to fill that role — but the data shows it isn't being used. The response gap is real and fixable, and the correct response depends on <em>where</em> the lead came from.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Mechanism</th><th>Volume (90d)</th><th>Assessment</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Berkeley / Qualified chatbot</strong></td><td>104 email captures · 2 conversations · 1 meeting booked</td><td>Not being engaged. ~1 email capture per day across the entire site.</td></tr>
+            <tr><td><strong>Direct demo form</strong></td><td>122 conversions</td><td>Working well — 6× chatbot performance with no chat involvement.</td></tr>
+            <tr><td><strong>Blog Talk To Us form</strong></td><td>21 conversions</td><td>Simple inline form outperforming the chatbot entirely.</td></tr>
+            <tr><td><strong>SDR alert on high_intent</strong></td><td>1,738 signals fired → 0 triggered</td><td>Not built. This is the gap.</td></tr>
+            <tr class="row-hi"><td><strong>Intent-Based Lead Scoring</strong></td><td>Not yet configured</td><td>Leads from /request-a-demo/ and /request-for-pricing/ should carry a higher HubSpot lead score than leads from a blog post. Page-level intent should feed directly into score thresholds — so sales prioritises inbound by signal quality, not just volume. A pricing page lead scores higher than a blog download.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout rd">
+        <div class="c-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E53E3E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+        <div class="c-body"><strong>Answer:</strong> Remove the chatbot. Rebuild instant response around three things: (1) HubSpot/Slack SDR alerts triggered by GA4 high_intent and form_start signals — so sales knows the moment a prospect raises their hand; (2) intent-based lead scoring tied to the originating page — a demo-page lead scores higher than a blog lead; and (3) a single, frictionless "Talk to us" CTA that replaces the fragmented form structure across the site. This is faster, cheaper, and more effective than any chat widget.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="qb" id="q3">
+    <div class="qb-h">
+      <div class="qb-n">3</div>
+      <h3>How do we track what led them there in the first place?</h3>
+    </div>
+    <div class="qb-body">
+      <p class="qb-ans">Attribution is working — channels are tracked, conversions are measurable, and the data is clean. The issue is what the attribution data reveals and what's not being done about it.</p>
+
+      <div class="chart-box" style="margin-bottom:20px;">
+        <h4>Session Key Event Rate by Channel</h4>
+        <p>Conversion efficiency — the signal to act on, not raw session volume</p>
+        <canvas id="convRateChart" style="max-height:220px;"></canvas>
+      </div>
+
+      <div class="callout tl">
+        <div class="c-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+        <div class="c-body"><strong>Answer:</strong> Attribution data exists and is reliable. The three most actionable findings: (1) Referral is the highest-converting channel — pull source-level data to identify which partners are driving it and formalise those relationships; (2) Paid Search is working at 1.97% — it deserves more budget; (3) Display needs a targeting audit before any budget decision — the conversion data is misleading without view-through attribution.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── AI TRAFFIC ─── -->
+<div class="section alt" id="ai">
+  <div class="sec-label">04 — AI Traffic Analysis</div>
+  <h2>Generative Engine Traffic</h2>
+  <p class="sub">Source-level data from GA4 Traffic Acquisition, filtered by AI engine referrer. These visitors arrive already informed — they've read a synthesis and are clicking through with intent.</p>
+
+  <div class="chart-box" style="margin-bottom:24px;">
+    <h4>AI Traffic Sources — Session Volume</h4>
+    <p>Sessions referred from each generative AI platform over the 90-day window</p>
+    <canvas id="aiBarChart" style="max-height:200px;"></canvas>
+  </div>
+
+  <div class="ai-grid">
+    <div class="aic chatgpt">
+      <div class="an">ChatGPT</div>
+      <div class="as">
+        <div><div class="asv">2,367</div><div class="asl">Sessions</div></div>
+        <div><div class="asv">1.06%</div><div class="asl">Key Event Rate</div></div>
+      </div>
+      <div class="ar"><div class="arv">1.06%</div><div class="arl">Session Key Event Rate</div></div>
+    </div>
+    <div class="aic gemini">
+      <div class="an">Google Gemini</div>
+      <div class="as">
+        <div><div class="asv">872</div><div class="asl">Sessions</div></div>
+        <div><div class="asv">0.57%</div><div class="asl">Key Event Rate</div></div>
+      </div>
+      <div class="ar"><div class="arv">0.57%</div><div class="arl">Session Key Event Rate</div></div>
+    </div>
+    <div class="aic perp">
+      <div class="an">Perplexity</div>
+      <div class="as">
+        <div><div class="asv">667</div><div class="asl">Sessions</div></div>
+        <div><div class="asv">1.17%</div><div class="asl">Key Event Rate</div></div>
+      </div>
+      <div class="ar"><div class="arv">1.17%</div><div class="arl">Session Key Event Rate</div></div>
+    </div>
+    <div class="aic claud">
+      <div class="an">Claude.ai</div>
+      <div class="as">
+        <div><div class="asv">295</div><div class="asl">Sessions</div></div>
+        <div><div class="asv" style="color:var(--amb);">0.34%</div><div class="asl">Key Event Rate</div></div>
+      </div>
+      <div class="ar"><div class="arv" style="color:var(--amb);">0.34%</div><div class="arl">Engaged but not converting — CTA gap</div></div>
+    </div>
+    <div class="aic copil">
+      <div class="an">Microsoft Copilot</div>
+      <div class="as">
+        <div><div class="asv">65</div><div class="asl">Sessions</div></div>
+        <div><div class="asv">3.08%</div><div class="asl">Key Event Rate</div></div>
+      </div>
+      <div class="ar"><div class="arv">3.08%</div><div class="arl">Highest AI conversion rate</div></div>
+    </div>
+    <div class="aic total-card">
+      <div class="tv">4,285</div>
+      <div class="tl">Total AI Sessions (2.1% of all traffic)</div>
+      <div class="ti">Converts 1–3× better than<br>Organic Search. Costs $0.</div>
+    </div>
+  </div>
+
+  <div class="callout tl">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </div>
+    <div class="c-body"><strong>The GEO opportunity is already working</strong>Monte Carlo is being cited by ChatGPT and Perplexity in responses about data observability, RAG, LLMs, and data pipelines. Perplexity converts at the same rate as Direct traffic. Copilot converts at the same rate as Referral. Adding FAQ schema to top blog posts, structured data markup, and question-led content would compound this advantage over time at near-zero cost.</div>
+  </div>
+</div>
+
+<!-- ─── TOP PAGES ─── -->
+<div class="section" id="pages">
+  <div class="sec-label">05 — Top Pages</div>
+  <h2>Page Performance Analysis</h2>
+  <p class="sub">The gap between page views and key events tells the story. Traffic isn't the problem.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Page</th><th>Views</th><th>Avg Engagement</th><th>Key Events</th><th>Key Event Rate</th><th>Observation</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>/ (Homepage)</td><td>39,454</td><td>13.6s</td><td>263</td><td>0.67%</td><td>Highest traffic. Functions as navigation hub — visitors orient and click through. Rate, not time, is the real metric.</td></tr>
+        <tr><td>/platform/troubleshooting-agent</td><td>8,524</td><td>9.4s</td><td>3</td><td>&lt;0.1%</td><td>2nd most visited product page. Traffic pattern suggests existing customer/product use — validate before adding prospect CTAs.</td></tr>
+        <tr class="row-hi"><td>/request-a-demo/</td><td>3,865</td><td>17.6s</td><td>891</td><td>23%</td><td>Best-converting page on the site. Discovery is the bottleneck.</td></tr>
+        <tr><td>/blog (top posts)</td><td>2,000–5,600</td><td>40–76s</td><td>Low</td><td>&lt;1%</td><td>Deeply engaged readers. No consistent path to demo. Biggest conversion gap.</td></tr>
+        <tr><td>/request-for-pricing/</td><td>2,496</td><td>27.0s</td><td>62</td><td>2.5%</td><td>Clear buyer intent. Consider a lighter "get pricing" flow.</td></tr>
+        <tr><td>/evaluate/data-observability-leader</td><td>3,593</td><td>13.8s</td><td>30</td><td>0.8%</td><td>Competitive evaluation content. Needs stronger differentiation copy.</td></tr>
+        <tr class="row-hi"><td>/get-resources/oreilly-report</td><td>1,402</td><td>21.2s</td><td>948</td><td>68%</td><td>Best-performing lead-gen asset on the site. Buried in a resource sub-page.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── COMPETITORS ─── -->
+<div class="section alt" id="competitors">
+  <div class="sec-label">06 — Competitive Benchmarks</div>
+  <h2>How Peers Convert</h2>
+  <p class="sub">Direct observation of five sites across CTA structure, demo flow, chatbot usage, and free trial availability.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th>Monte Carlo</th><th>Datadog</th><th>Acceldata</th><th>Hex</th><th>Torq</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Primary CTA</strong></td>
+          <td><span class="badge b-mc">Request a Demo</span></td>
+          <td><span class="badge b-yes">Free Trial</span></td>
+          <td><span class="badge b-no">Book a Demo</span></td>
+          <td><span class="badge b-yes">Get Started Free</span></td>
+          <td><span class="badge b-no">Get a Demo</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chatbot</strong></td>
+          <td><span class="badge b-mc">Yes (Berkeley)</span></td>
+          <td><span class="badge b-no">No</span></td>
+          <td><span class="badge b-yes">Yes (Pipar/AI)</span></td>
+          <td><span class="badge b-no">No</span></td>
+          <td><span class="badge b-no">No</span></td>
+        </tr>
+        <tr>
+          <td><strong>Free Trial</strong></td>
+          <td><span class="badge b-no">No</span></td>
+          <td><span class="badge b-yes">Yes — primary</span></td>
+          <td><span class="badge b-no">No</span></td>
+          <td><span class="badge b-yes">Yes — primary</span></td>
+          <td><span class="badge b-no">No</span></td>
+        </tr>
+        <tr>
+          <td><strong>Self-guided tour</strong></td>
+          <td><span class="badge b-mc">Yes (secondary)</span></td>
+          <td><span class="badge b-yes">See the Platform</span></td>
+          <td><span class="badge b-no">No</span></td>
+          <td><span class="badge b-yes">Built into product</span></td>
+          <td><span class="badge b-no">No</span></td>
+        </tr>
+        <tr>
+          <td><strong>Nav items</strong></td>
+          <td>5</td><td>6</td><td>6</td><td>5</td><td>5</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout am">
+    <div class="c-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="c-body"><strong>The free-trial gap is the largest structural conversion disadvantage</strong>Datadog and Hex — the two most aspirational peers — both lead with a free tier. This gives buyers the ability to develop product conviction before speaking to sales. The existing self-guided tour is the right instinct and deserves primary CTA status, not secondary. Elevating it to co-equal with "Request a Demo" is the most accessible step toward narrowing this gap.</div>
+  </div>
+</div>
+
+<!-- ─── FOUNDATION ─── -->
+<div class="section" id="foundation">
+  <div class="sec-label">07 — Roadmap</div>
+  <h2>Before Anything Else — Foundation</h2>
+  <p class="sub">Three things that need to be in place before the rest of the roadmap will work. Without them, the signals exist but nothing acts on them.</p>
+
+  <div class="fnd">
+    <h3>Foundational Infrastructure</h3>
+    <p class="fs">These unlock everything downstream. Low cost, high leverage.</p>
+    <div class="fnd-grid">
+      <div class="fi">
+        <div class="fii">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="fit">GA4 → HubSpot Signal Wiring</div>
+        <div class="fid">Connect high_intent and form_start GA4 events to HubSpot workflows and SDR Slack alerts. 1,738 intent signals firing per quarter with zero downstream action. No site changes required.</div>
+      </div>
+      <div class="fi">
+        <div class="fii">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="fit">Referral Source Validation</div>
+        <div class="fid">Pull source-level referral breakdown in GA4. Confirm whether Snowflake, Databricks, G2, or Gartner are driving the 26% of demo conversions. The entire partner investment decision depends on this.</div>
+      </div>
+      <div class="fi">
+        <div class="fii">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#05C9DA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="fit">Display Campaign Audit</div>
+        <div class="fid">Identify what the current display campaign is targeting before cutting or keeping it. Broad GDN prospecting: reallocate. Account-based retargeting (ICP list): add view-through tracking. This decision requires one conversation, not a budget cut.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ROADMAP ─── -->
+<div class="section alt" id="roadmap" style="padding-bottom:60px;">
+  <h2>Priority Action Plan</h2>
+  <p class="sub" style="margin-bottom:28px;">Three phases sequenced by effort, cost, and dependency. Phase 1 requires no site changes. Phase 2 requires content and CTA updates. Phase 3 is strategic investment.</p>
+
+  <div class="rm">
+
+    <div class="ph">
+      <div class="ph-h p1">
+        <div class="phl">Phase 1</div>
+        <h3>Immediate Wins</h3>
+      </div>
+      <div class="ph-body">
+        <div class="act">
+          <div class="at">Remove Berkeley / Qualified chatbot</div>
+          <div class="ad">104 email captures, 2 conversations, 1 meeting in 90 days. Not a conversion driver. Reallocate the budget to SDR tooling and signal-wiring.</div>
+          <span class="a-tag tag-h">High Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Wire GA4 signals to SDR alerts + lead scoring</div>
+          <div class="ad">Connect high_intent and form_start events to HubSpot workflows and Slack SDR notifications. Configure intent-based lead scoring: leads from /request-a-demo/ or /request-for-pricing/ score higher than blog leads. Sales prioritises by signal quality, not just volume. No site changes, no dev work.</div>
+          <span class="a-tag tag-h">Highest ROI</span>
+        </div>
+        <div class="act">
+          <div class="at">Validate referral source breakdown</div>
+          <div class="ad">Pull GA4 source-level referral data. If Snowflake/Databricks/G2 confirmed, initiate partner conversations immediately. 26% of demo conversions come from this channel.</div>
+          <span class="a-tag tag-h">High Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Audit display targeting</div>
+          <div class="ad">One internal conversation to determine if current display is broad GDN or account-based retargeting. Decision determines whether to cut budget or add view-through tracking.</div>
+          <span class="a-tag tag-m">Required First</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ph">
+      <div class="ph-h p2">
+        <div class="phl">Phase 2</div>
+        <h3>Conversion Architecture</h3>
+      </div>
+      <div class="ph-body">
+        <div class="act">
+          <div class="at">Promote the O'Reilly Report to front page</div>
+          <div class="ad">Best-performing lead-gen asset on the site — 68% conversion rate on 1,402 views. Currently buried in a resource sub-page. Feature in homepage hero. Build a 30-day nurture sequence from download to demo request.</div>
+          <span class="a-tag tag-h">High Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Elevate "Take a Tour" to primary CTA</div>
+          <div class="ad">Make it co-equal with "Request a Demo" in the hero and nav. In a demo-gated model, the self-guided tour builds product conviction before a sales conversation — it's the closest equivalent to a free trial.</div>
+          <span class="a-tag tag-h">High Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Add blog-to-demo conversion pathways</div>
+          <div class="ad">Inline CTAs, sticky "request demo" bar, or exit-intent prompt on top blog posts. Readers are spending 40–76 seconds on technical content — they are pre-qualified. They just have nowhere obvious to go next.</div>
+          <span class="a-tag tag-h">High Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Add FAQ schema to AI-landing and priority ranking pages</div>
+          <div class="ad">Apply structured FAQ markup and schema.org data to top blog posts (data pipeline, RAG, LLM, observability), all product pages, and any page you want surfaced more consistently in AI-cited search results. These posts are already being cited by ChatGPT and Perplexity — schema makes the citations more reliable, more frequent, and extends the same advantage to comparison and pricing pages.</div>
+          <span class="a-tag tag-m">Medium Impact</span>
+        </div>
+        <div class="act">
+          <div class="at">Fix the Claude.ai conversion gap</div>
+          <div class="ad">295 sessions, strong engagement, near-zero key events. Pull landing pages for these sessions — they're likely hitting blog posts with no CTA. Quick fix once confirmed.</div>
+          <span class="a-tag tag-m">Quick Win</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ph">
+      <div class="ph-h p3">
+        <div class="phl">Phase 3</div>
+        <h3>Strategic Investment</h3>
+      </div>
+      <div class="ph-body">
+        <div class="act">
+          <div class="at">Expand the self-service experience</div>
+          <div class="ad">An interactive sandbox, demo environment, or live data tour removes the product-conviction barrier in the current demo-gated model. Datadog and Hex lead with this. It is the single largest structural conversion advantage they hold.</div>
+          <span class="a-tag tag-s">Strategic</span>
+        </div>
+        <div class="act">
+          <div class="at">Partner ecosystem formalisation</div>
+          <div class="ad">If referral validation (Phase 1) confirms Snowflake, Databricks, or G2 as primary drivers, formalise those relationships: co-sell listings, integration marketplace placement, joint content. Referral has the highest conversion rate of any channel at 3.12%.</div>
+          <span class="a-tag tag-s">Strategic</span>
+        </div>
+        <div class="act">
+          <div class="at">Programmatic display migration</div>
+          <div class="ad">If display audit (Phase 1) confirms broad GDN, migrate to account-based programmatic (The Trade Desk or DV360 with ICP account list). Proper audience targeting + view-through measurement converts display from a questionable line item into a measurable brand-persistence tool.</div>
+          <span class="a-tag tag-s">Strategic</span>
+        </div>
+        <div class="act">
+          <div class="at">GEO content strategy</div>
+          <div class="ad">AI-referred traffic converts at 1–3× organic search rates and costs nothing. A deliberate programme — FAQ schema, structured data, question-led editorial, and AI citation monitoring — compounds this advantage systematically at near-zero cost.</div>
+          <span class="a-tag tag-s">Strategic</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  <strong>Monte Carlo Data — Website Performance Analysis</strong> &nbsp;·&nbsp; Source: Monte Carlo Website – GA4 &nbsp;·&nbsp; 90-Day Rolling Window
+</div>
+
+</div><!-- /main -->
+
+<script>
+/* ── Chart defaults ── */
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.color = '#6B7685';
+
+/* ── Chart 1: Sessions by Channel (Donut) ── */
+new Chart(document.getElementById('channelChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Organic Search','Direct','Paid Search','Display','Referral','Organic Social','Email','Other'],
+    datasets: [{
+      data: [89813, 28681, 18388, 16503, 12205, 4934, 3474, 8002],
+      backgroundColor: ['#05C9DA','#0D1E35','#10B981','#E53E3E','#F59E0B','#7C3AED','#6B7685','#CBD5E0'],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    cutout: '66%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 10, family: "'Inter',system-ui" }, boxWidth: 10, padding: 10, color: '#6B7685' }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct = ((ctx.parsed / total)*100).toFixed(1);
+            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+
+/* ── Chart 2: Conversion Breakdown (Donut) ── */
+new Chart(document.getElementById('convBreakChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Demo Requests','Chat Meetings','Blog Talk To Us'],
+    datasets: [{
+      data: [122, 41, 21],
+      backgroundColor: ['#05C9DA','#0D1E35','#F59E0B'],
+      borderWidth: 0,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    cutout: '66%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 10, family: "'Inter',system-ui" }, boxWidth: 10, padding: 10, color: '#6B7685' }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct = ((ctx.parsed / total)*100).toFixed(0);
+            return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+
+/* ── Chart 3: Conversion Rate by Channel (Horizontal Bar) ── */
+new Chart(document.getElementById('convRateChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Referral','Paid Search','Email','Direct','Organic Social','Organic Search','Display'],
+    datasets: [{
+      label: 'Session Key Event Rate (%)',
+      data: [3.12, 1.97, 1.56, 1.54, 1.09, 0.57, 0.23],
+      backgroundColor: [
+        'rgba(245,158,11,0.85)',
+        'rgba(16,185,129,0.85)',
+        'rgba(107,118,133,0.7)',
+        'rgba(13,30,53,0.8)',
+        'rgba(124,58,237,0.7)',
+        'rgba(5,201,218,0.8)',
+        'rgba(229,62,62,0.8)'
+      ],
+      borderRadius: 4,
+      borderWidth: 0
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}%` } }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { callback: v => v + '%', font: { size: 11 } }
+      },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+/* ── Chart 4: AI Traffic Sessions (Horizontal Bar) ── */
+new Chart(document.getElementById('aiBarChart'), {
+  type: 'bar',
+  data: {
+    labels: ['ChatGPT','Google Gemini','Perplexity','Claude.ai','MS Copilot'],
+    datasets: [{
+      label: 'Sessions',
+      data: [2367, 872, 667, 295, 65],
+      backgroundColor: ['rgba(16,163,127,0.85)','rgba(66,133,244,0.85)','rgba(107,79,187,0.85)','rgba(204,120,92,0.85)','rgba(0,164,239,0.85)'],
+      borderRadius: 4,
+      borderWidth: 0
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x.toLocaleString()} sessions` } }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { font: { size: 11 }, callback: v => v.toLocaleString() }
+      },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+/* ── Active nav on scroll ── */
+const sections = document.querySelectorAll('[id]');
+const navLinks = document.querySelectorAll('.sidenav a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.sidenav a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.25 });
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
